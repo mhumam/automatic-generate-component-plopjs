@@ -1,27 +1,20 @@
+function capitalize(str) {
+    return str.charAt(0)?.toUpperCase() + str?.slice(1);
+}
+
 module.exports = plop => {
-    plop.setGenerator('component', {
-        description: 'Create a component',
-        // User input prompts provided as arguments to the template
-        prompts: [
-            {
-                // Raw text input
-                type: 'input',
-                // Variable name for this input
-                name: 'name',
-                // Prompt to display on command line
-                message: 'What is your component name?'
-            },
-        ],
-        actions: [
-            {
-                // Add a new file
-                type: 'add',
-                // Path for the new file
-                path: 'src/components/{{pascalCase name}}.js',
-                // Handlebars template used to generate content of new file
-                templateFile: 'plop-templates/Component.js.hbs',
-            },
-        ],
+    /** helper plop js */
+    plop.setHelper('parseFolderName', function (text) {
+        return text?.replace(/\s+/g, '-')?.toLowerCase();
+    });
+    plop.setHelper('parseComponentName', function (text) {
+        return text.split(' ').map(capitalize).join('');
+    });
+    plop.setHelper('formatTitle', function (text) {
+        return text?.split(' ')?.map(capitalize)?.join(' ');
+    });
+    plop.setHelper('generateUrl', function (text) {
+        return text?.replace(/\s+/g, '-')?.toLowerCase();
     });
 
     plop.setGenerator('reduxAuth', {
@@ -82,33 +75,67 @@ module.exports = plop => {
         ],
     });
 
-
     plop.setGenerator('page', {
         description: 'Create a page',
         prompts: [
             {
                 type: 'input',
                 name: 'pageName',
-                message: 'What is your page name?',
-                // validate: requireField('pageName')
+                message: 'What is your page name?'
+            },
+            {
+                type: 'input',
+                name: 'accessCode',
+                message: 'What is your page access code?'
             },
         ],
         actions: [
+            /* generate page */
             {
                 type: 'add',
-                path: 'src/pages/{{pageName}}/index.js',
+                path: 'src/pages/{{parseFolderName pageName}}/index.js',
                 templateFile: 'plop-templates/create-page/page/index.js',
             },
             {
                 type: 'add',
-                path: 'src/pages/{{pageName}}/form.js',
+                path: 'src/pages/{{parseFolderName pageName}}/form.js',
                 templateFile: 'plop-templates/create-page/page/form.js',
             },
             {
                 type: 'add',
-                path: 'src/pages/{{pageName}}/detail.js',
+                path: 'src/pages/{{parseFolderName pageName}}/detail.js',
                 templateFile: 'plop-templates/create-page/page/detail.js',
             },
-        ],
+            {
+                type: 'add',
+                path: 'src/config/Route.js',
+                templateFile: 'plop-templates/create-page/routes/index.js',
+            },
+            /* generate route config */
+            {
+                type: 'append',
+                path: 'src/config/Route.js',
+                pattern: `/* PAGE COMPONENT LIST */`,
+                template: `const {{parseComponentName pageName}} = React.lazy(() => import('page/{{parseFolderName pageName}}'));`,
+            },
+            {
+                type: 'append',
+                path: 'src/config/Route.js',
+                pattern: `/* PAGE COMPONENT LIST */`,
+                template: `const {{parseComponentName pageName}}Form = React.lazy(() => import('page/{{parseFolderName pageName}}/create'));`,
+            },
+            {
+                type: 'append',
+                path: 'src/config/Route.js',
+                pattern: `/* PRIVATE ROUTE LIST */`,
+                template: `{ exact: true, path: '/{{generateUrl pageName}}', name: '{{formatTitle pageName}} List', component: {{parseComponentName pageName}}, access: '{{accessCode}}', action: 'read' },`,
+            },
+            {
+                type: 'append',
+                path: 'src/config/Route.js',
+                pattern: `/* PRIVATE ROUTE LIST */`,
+                template: `{ exact: true, path: '/{{generateUrl pageName}}/create', name: '{{formatTitle pageName}} Create', component: {{parseComponentName pageName}}Form, access: '{{accessCode}}', action: 'create' },`,
+            }
+        ]
     });
 };
