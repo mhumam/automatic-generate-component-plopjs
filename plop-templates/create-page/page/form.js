@@ -1,6 +1,6 @@
 import React from 'react'
 
-const {{parseComponentName pageName}} = () => {
+const {{generateComponentName pageName}} = () => {
     return (
         <div>
 
@@ -8,4 +8,4 @@ const {{parseComponentName pageName}} = () => {
     )
 }
 
-export default {{parseComponentName pageName}}
+export default {{generateComponentName pageName}}

@@ -4,10 +4,10 @@ function capitalize(str) {
 
 module.exports = plop => {
     /** helper plop js */
-    plop.setHelper('parseFolderName', function (text) {
+    plop.setHelper('generateFolderName', function (text) {
         return text?.replace(/\s+/g, '-')?.toLowerCase();
     });
-    plop.setHelper('parseComponentName', function (text) {
+    plop.setHelper('generateComponentName', function (text) {
         return text.split(' ').map(capitalize).join('');
     });
     plop.setHelper('formatTitle', function (text) {
@@ -93,17 +93,17 @@ module.exports = plop => {
             /* generate page */
             {
                 type: 'add',
-                path: 'src/pages/{{parseFolderName pageName}}/index.js',
+                path: 'src/pages/{{generateFolderName pageName}}/index.js',
                 templateFile: 'plop-templates/create-page/page/index.js',
             },
             {
                 type: 'add',
-                path: 'src/pages/{{parseFolderName pageName}}/form.js',
+                path: 'src/pages/{{generateFolderName pageName}}/form.js',
                 templateFile: 'plop-templates/create-page/page/form.js',
             },
             {
                 type: 'add',
-                path: 'src/pages/{{parseFolderName pageName}}/detail.js',
+                path: 'src/pages/{{generateFolderName pageName}}/detail.js',
                 templateFile: 'plop-templates/create-page/page/detail.js',
             },
             {
@@ -116,25 +116,25 @@ module.exports = plop => {
                 type: 'append',
                 path: 'src/config/Route.js',
                 pattern: `/* PAGE COMPONENT LIST */`,
-                template: `const {{parseComponentName pageName}} = React.lazy(() => import('page/{{parseFolderName pageName}}'));`,
+                template: `const {{generateComponentName pageName}} = React.lazy(() => import('page/{{generateFolderName pageName}}'));`,
             },
             {
                 type: 'append',
                 path: 'src/config/Route.js',
                 pattern: `/* PAGE COMPONENT LIST */`,
-                template: `const {{parseComponentName pageName}}Form = React.lazy(() => import('page/{{parseFolderName pageName}}/create'));`,
+                template: `const {{generateComponentName pageName}}Form = React.lazy(() => import('page/{{generateFolderName pageName}}/create'));`,
             },
             {
                 type: 'append',
                 path: 'src/config/Route.js',
                 pattern: `/* PRIVATE ROUTE LIST */`,
-                template: `{ exact: true, path: '/{{generateUrl pageName}}', name: '{{formatTitle pageName}} List', component: {{parseComponentName pageName}}, access: '{{accessCode}}', action: 'read' },`,
+                template: `{ exact: true, path: '/{{generateUrl pageName}}', name: '{{formatTitle pageName}} List', component: {{generateComponentName pageName}}, access: '{{accessCode}}', action: 'read' },`,
             },
             {
                 type: 'append',
                 path: 'src/config/Route.js',
                 pattern: `/* PRIVATE ROUTE LIST */`,
-                template: `{ exact: true, path: '/{{generateUrl pageName}}/create', name: '{{formatTitle pageName}} Create', component: {{parseComponentName pageName}}Form, access: '{{accessCode}}', action: 'create' },`,
+                template: `{ exact: true, path: '/{{generateUrl pageName}}/create', name: '{{formatTitle pageName}} Create', component: {{generateComponentName pageName}}Form, access: '{{accessCode}}', action: 'create' },`,
             }
         ]
     });
